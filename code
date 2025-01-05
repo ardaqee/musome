@@ -1,100 +1,39 @@
--- Load the OrionLib library
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local flying = false
+local speed = 50
 
--- Create the main window
-local Window = OrionLib:MakeWindow({
-    Name = "Pet Sending Hub",  -- Window title
-    HidePremium = false,  -- Hide premium users
-    SaveConfig = true,  -- Save configuration
-    ConfigFolder = "PetSendingConfig"  -- Configuration folder
-})
+local function fly()
+    flying = true
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    bodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+    bodyVelocity.Parent = character.HumanoidRootPart
 
--- Add a tab
-local Tab = Window:MakeTab({
-    Name = "Pet Sending",
-    Icon = "rbxassetid://4483345998",  -- Tab icon
-    PremiumOnly = false
-})
-
--- Inventory of pets
-local playerInventory = {
-    {name = "Titanic Soul Owl", value = 11500000000},
-    {name = "Titanic Sad Cat", value = 30620000000},
-    {name = "Titanic Luchador Cat", value = 8020000000},
-    {name = "Titanic Arcane Cat", value = 16390000000},
-    {name = "Titanic Jolly Cat", value = 12500000000},
-    {name = "Titanic Balloon Cat", value = 18000000000},
-    {name = "Titanic Capybara", value = 22000000000},
-    {name = "Titanic Neon Agony", value = 18500000000},
-    {name = "Titanic Monkey", value = 15000000000},
-    {name = "Titanic Hologram Cat", value = 17500000000},
-    {name = "Titanic Phoenix", value = 19000000000},
-    {name = "Titanic Lucky", value = 16000000000},
-    {name = "Titanic Dominus Astra", value = 25000000000},
-    {name = "Titanic Nightfall Wolf", value = 20000000000},
-    {name = "Titanic Nightfall Pegasus", value = 22000000000},
-    {name = "Titanic Jelly Cat", value = 18000000000},
-    {name = "Titanic Kraken", value = 23000000000},
-    {name = "Titanic Mystic Dragon", value = 24000000000},
-    {name = "Titanic Elemental", value = 19500000000},
-    {name = "Titanic Inferno Cat", value = 20000000000},
-    {name = "Titanic Storm Agony", value = 21000000000},
-    {name = "Titanic Frost Dragon", value = 22000000000},
-    {name = "Titanic Doodle Cat", value = 23000000000},
-    {name = "Titanic Cyber Bunny", value = 18000000000},
-    {name = "Titanic Crystal Deer", value = 20000000000},
-    {name = "Titanic Techno Cat", value = 21000000000},
-    {name = "Titanic Samurai Dragon", value = 19000000000},
-    {name = "Titanic Rainbow Unicorn", value = 20000000000},
-    {name = "Titanic Lava Scorpion", value = 25000000000},
-    
-    -- Adding Huge Happy Computer
-    {name = "Huge Happy Computer", value = 100000000000}  -- Example value
-}
-
--- Pet sending function
-function sendPetToUser(inventory, user)
-    -- Find the user's mailbox GUI
-    local userMailbox = game.Players[user].PlayerGui:FindFirstChild("Mailbox")
-    
-    -- If mailbox GUI is found
-    if userMailbox then
-        for _, pet in ipairs(inventory) do
-            -- If pet name contains "Titanic" or "Huge"
-            if pet.name:find("Titanic") or pet.name:find("Huge") then
-                -- Add the pet to the Mailbox
-                local newPet = Instance.new("TextLabel")
-                newPet.Text = pet.name .. " - Value: " .. pet.value
-                newPet.Size = UDim2.new(0, 200, 0, 50)
-                newPet.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                newPet.TextColor3 = Color3.fromRGB(0, 0, 0)
-                newPet.Parent = userMailbox
-                
-                -- Print a message
-                print("Pet " .. pet.name .. " is sent to user " .. user)
-            end
-        end
-    else
-        -- If the mailbox GUI is not found
-        warn("User does not have a Mailbox GUI!")
+    while flying do
+        bodyVelocity.Velocity = Vector3.new(0, speed, 0) -- yukarı doğru hareket
+        wait(0.1)
     end
+
+    bodyVelocity:Destroy()
 end
 
--- GUI Code: Using OrionLib
-local Section = Tab:AddSection({
-    Name = "Start Pet Sending"
-})
+local function stopFlying()
+    flying = false
+end
 
--- Start button code
-local StartButton = Section:AddButton({
-    Name = "Send Pets",
-    Callback = function()
-        -- Sending pets code
-        local destinationUser = "metegazoz77" -- The user to send pets to
-        sendPetToUser(playerInventory, destinationUser)
-        print("Pet sending started!")
+-- Uçma ve durdurma için tuş atama
+local UserInputService = game:GetService("UserInputService")
+
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent then
+        if input.KeyCode == Enum.KeyCode.F then -- 'F' tuşuna basıldığında
+            if flying then
+                stopFlying()
+            else
+                fly()
+            end
+        end
     end
-})
-
--- If you want to send automatically when the script runs, uncomment the line below:
--- sendPetToUser(playerInventory, "metegazoz77") -- Replace "metegazoz77" with the target player's username
+end)
